@@ -1,0 +1,390 @@
+#include <iostream>
+#include <conio.h>
+#include <string.h>
+#include <fstream>
+#include <stdlib.h>
+#include <locale.h>
+
+using namespace std;
+class menu
+{
+private:
+    string nombre;
+    string direccion;
+    string empresa;
+	string celular;	
+	string codigoCliente;
+public:
+	void menuPrincipal();
+    void altaCliente();
+    void detallesCliente();
+    void eliminarCliente();
+    void listarClientes();
+    void mostarRegistro(string codigo);
+};
+void pausa();
+void error();
+void menu::menuPrincipal()
+{
+	int opcion;
+	do{
+		cout<<"\t\t\t\t***Registro de envios ***\t\t\t\t\n\n";
+        cout<<"1. AUMENTAR UN CLIENTE \n\n";
+        cout<<"2. DETALLES DE LOS CLIENTES \n\n";
+        cout<<"3. ELIMINAR UN CLIENTE \n\n";
+        cout<<"4. LISTA DE LOS ENVIOS DE HOY \n\n";
+        cout<<"5. Salir\n\n";
+        cout<<"Opci\242n: ";
+        cin>>opcion;
+        system("cls");
+        switch(opcion)
+        {
+        default:
+            cout<<"Ha ingresado una opción no valida!\n\n";
+            break;
+
+        case 1:
+            altaCliente();
+            break;
+
+        case 2:
+            detallesCliente();
+            break;
+
+        case 3:
+            eliminarCliente();
+            break;
+
+        case 4:
+            listarClientes();
+            break;
+
+        case 5:
+            break;
+        }
+    }
+    while(opcion!=6);
+}
+void menu::altaCliente(){
+    ifstream verificador;
+    ofstream escritura;
+    string auxCodigo;
+    bool coincidencia=false;
+    verificador.open("clientes.txt",ios::in);
+    escritura.open("clientes.txt",ios::app);
+    if(escritura.is_open()&&verificador.is_open()){
+        cout<<"\t\t\t\t***AUMENTAR UN CLIENTE***\t\t\t\t\n\n";
+        fflush(stdin);
+        cout<<"Ingresa el código del cliente: ";
+        getline(cin,auxCodigo);
+        if(auxCodigo=="")
+            do
+            {
+                cout<<"código de cliente no válido!, intentalo nuevamente: ";
+                getline(cin,auxCodigo);
+            }
+            while(auxCodigo=="");
+        do
+        {
+            verificador.seekg(0);
+            getline(verificador,codigoCliente);
+            while(!verificador.eof())
+            {
+                getline(verificador,nombre);
+                getline(verificador,direccion);
+                getline(verificador,empresa);
+                getline(verificador,celular);
+
+                if(codigoCliente==auxCodigo)
+                {
+                    coincidencia=true;
+                    cout<<"\n\nYa existe un cliente con ese código!\n\n";
+                    cout<<"El cliente con ese código es: "<<nombre<<"\n\n";
+                    cout<<"Ingresa un código válido!: ";
+                    getline(cin,auxCodigo);
+                    if(auxCodigo=="")
+                        do
+                        {
+                            cout<<"\ncódigo de cliente no válido!, intentalo nuevamente: ";
+                            getline(cin,auxCodigo);
+                        }
+                        while(auxCodigo=="");
+
+                    break;
+                }
+
+                getline(verificador,codigoCliente);
+
+			}
+            if(verificador.eof()&&auxCodigo!=codigoCliente)
+                coincidencia=false;
+        }
+        while(coincidencia==true);
+        system("cls");
+        codigoCliente=auxCodigo;
+        cout<<"\t\t\t\t***Dar de alta un cliente***\t\t\t\t\n\n";
+        cout<<"Ingresa el código del cliente: ";
+        cout<<codigoCliente;
+        cout<<"\n\n";
+        fflush(stdin);
+        cout<<"Ingresa el nombre del cliente: ";
+        getline(cin,nombre);
+        cout<<"\n\n";
+        fflush(stdin);
+        cout<<"Ingresa LA DIRECCION: ";
+        getline(cin,direccion);
+        cout<<"\n\n";
+        fflush(stdin);
+        cout<<"Ingresa LA EMPRESA DE TRANSPORTE: ";
+        getline(cin,empresa);
+        cout<<"\n\n";
+        fflush(stdin);
+        cout<<"Ingresa EL CELULAR: ";
+        getline(cin,celular);
+        cout<<"\n\n";
+
+        escritura<<codigoCliente<<"\n"<<nombre<<"\n"<<direccion<<"\n"<<empresa
+                 <<"\n"<<celular<<"\n";
+
+        cout<<"El registro se ha completado correctamente.\n\n";
+    }
+
+    else{
+        error();
+    }
+    escritura.close();
+    verificador.close();
+    pausa();
+}
+void menu::eliminarCliente()
+{
+    ifstream lectura;
+    ofstream auxiliar;
+    bool encontrado=false;
+    string auxCodigo;
+    char respuesta[5];
+    lectura.open("clientes.txt",ios::in);
+    auxiliar.open("auxiliar.txt",ios::out);
+    cout<<"\t\t\t\t***ELIMINAR UN CLIENTE ***\t\t\t\t\n\n";
+    if(lectura.is_open()&&auxiliar.is_open()){
+        fflush(stdin);
+        cout<<"Ingresa el código del cliente que deseas eliminar: ";
+        getline(cin,auxCodigo);
+        getline(lectura,codigoCliente);
+        while(!lectura.eof())
+        {
+            getline(lectura,nombre);
+            getline(lectura,direccion);
+            getline(lectura,empresa);
+            getline(lectura,celular);
+
+            if(auxCodigo==codigoCliente)
+            {
+                encontrado=true;
+                cout<<"\n\nRegistro Encontrado\n\n";
+                cout<<"C\242digo: "<<codigoCliente<<endl;
+                cout<<"Nombre: "<<nombre<<endl;
+                cout<<"DIRECCION "<<direccion<<endl;
+                cout<<"EMPRESA "<<empresa<<endl;
+                cout<<"CELULAR "<<celular<<endl;
+                cout<<"\n\n";
+                cout<<"Realmente deseas dar de baja a: "<<nombre<<" (s/n)?: ";
+                cin.getline(respuesta,5);
+                if(strcmp(respuesta,"s")==0||strcmp(respuesta,"S")==0||       		// usar strupr o strlwr
+                        strcmp(respuesta,"si")==0||strcmp(respuesta,"SI")==0||
+                        strcmp(respuesta,"Si")==0||strcmp(respuesta,"sI")==0)
+                {
+                    cout<<"\n\nEl cliente se ha ELIMINADO correctamente\n\n";
+                }
+
+                else
+                {
+
+                    cout<<"\n\nCliente conservado\n\n";
+                    auxiliar<<codigoCliente<<"\n"<<nombre<<"\n"<<direccion<<"\n"<<empresa
+                            <<"\n"<<celular<<"\n";
+
+                }
+
+            }
+            else
+            {
+                auxiliar<<codigoCliente<<"\n"<<nombre<<"\n"<<direccion<<"\n"<<empresa
+                        <<"\n"<<celular<<"\n";
+            }
+            getline(lectura,codigoCliente);
+        }
+        if(encontrado==false)
+        {
+            cout<<"\n\nNo se encontró el código: "<<auxCodigo<<"\n\n";
+        }
+
+    }
+    else{
+        error();
+    }
+    lectura.close();
+    auxiliar.close();
+    remove("clientes.txt");
+    rename("auxiliar.txt","clientes.txt");
+    pausa();
+}
+void menu::detallesCliente(){
+    string auxCodigo;
+    ifstream mostrar;
+    bool encontrado=false;
+    mostrar.open("clientes.txt",ios::in);
+    if(mostrar.is_open())
+    {
+        fflush(stdin);
+        cout<<"\t\t\t\t***Consultar detalles de un cliente***\t\t\t\t\n\n";
+        cout<<"Ingresa el código del cliente que deseas consultar detalles: ";
+        getline(cin,auxCodigo);
+        getline(mostrar,codigoCliente);
+        while(!mostrar.eof())
+        {
+            getline(mostrar,nombre);
+            getline(mostrar,direccion);
+            getline(mostrar,empresa);
+            getline(mostrar,celular);
+
+            if(auxCodigo==codigoCliente)
+            {
+                encontrado=true;
+                cout<<"\n\nRegistro Encontrado\n\n";
+                cout<<"C\242digo: "<<codigoCliente<<endl;
+                cout<<"Nombre: "<<nombre<<endl;
+                cout<<"Domicilio: "<<direccion<<endl;
+                cout<<"EMPRESA: "<<empresa<<endl;
+                cout<<"CELULAR: "<<celular<<endl;
+                cout<<"\n\n";
+            }
+
+            getline(mostrar,codigoCliente);
+        }
+
+        if(encontrado==false)
+        {
+            cout<<"\n\nNo se encontro el registro: "<<auxCodigo<<"\n\n";
+        }
+    }
+
+    else
+    {
+        error();
+    }
+    mostrar.close();
+    pausa();
+}
+void menu::listarClientes()
+{
+    int i=0;
+    ifstream lectura;
+    lectura.open("clientes.txt",ios::in);
+    if(lectura.is_open()) {
+        cout<<"\t\t\t\t***Listado de todos los clientes***\t\t\t\t\n\n";
+        getline(lectura,codigoCliente);
+        while(!lectura.eof()) {
+            i++;
+            getline(lectura,nombre);
+            getline(lectura,direccion);
+            getline(lectura,empresa);
+            getline(lectura,celular);
+            cout<<"C\242digo: "<<codigoCliente<<endl;
+            cout<<"Nombre: "<<nombre<<endl;
+            cout<<"Domicilio: "<<direccion<<endl;
+            cout<<"EMPRESA : "<<empresa<<endl;
+            cout<<" CELULAR: "<<celular<<endl;
+            cout<<"\n\n";
+            getline(lectura,codigoCliente);
+        }
+
+        if(i==1)
+            cout<<"Hay un solo cliente registrado en este gimnasio\n\n";
+
+        else
+
+            cout<<"Hay un total de "<<i<<" clientes registrados en este gimnasio\n\n";
+    }
+    else{
+        error();
+    }
+    lectura.close();
+    pausa();
+}
+void pausa(){
+    cout<<"Presiona Enter para continuar...";
+    getch();
+    system("cls");
+}
+
+int main(){
+	setlocale(LC_ALL,"spanish");
+	system ("color f0");
+	int intentos=0,status=0;
+string  user;
+string password;
+cout<<"\n             ===========================================================";
+cout<<"\n                         ************BIENVENIDO*************            ";
+cout<<"\n             ===========================================================";
+//uso do while para el login
+	do{
+	cout<<"  \n          DIJITE USUARIO: \n";
+	cout<<"             ";cin>>user;
+	cout<<"\n          DIJITE CONTRASEÑA: \n";
+	cout<<"            ";cin>>password;
+	if((user!="admin") && (password!="admin")){
+		intentos++;
+		cout<<"\n                LOS DATOS SON INCORRECTOS";
+		pausa();
+	}
+	else if ((user=="admin") && (password!="admin")){
+		intentos++;
+		cout<<"\n                 LOS DATOS SON INCORRECTOS\n";
+		pausa();
+	}
+	else{
+		status=1;
+	}
+	system("cls");
+	}while (intentos<3 && status==0);
+
+	if(status==1){
+		menu inicio;
+    	inicio.menuPrincipal();
+	}
+	else{
+	cout<<"\n LOS INTENTOS HAN TERMINADO ~(>_<.)\ )";
+	}
+    return 0;
+}
+void error()
+{
+    cout<<"No se pudo abrir el archivo de registros, asegurese que el archivo se encuentre en\n";
+    cout<<"la misma ubicación que el programa o que el archivo de texto se llame: \n";
+    cout<<"clientes.txt, si el archivo tiene otro nombre renómbrelo al ya mencionado\n\n";
+}
+void menu::mostarRegistro(string codigo)
+{
+    ifstream mostrar;
+    mostrar.open("clientes.txt",ios::in);
+    getline(mostrar,codigoCliente);
+    while(!mostrar.eof()){
+        getline(mostrar,nombre);
+        getline(mostrar,direccion);
+        getline(mostrar,empresa);
+        getline(mostrar,celular);
+        if(codigo==codigoCliente)
+        {
+            cout<<"\n\nRegistro Encontrado\n\n";
+            cout<<"CÓDIGO: "<<codigoCliente<<endl;
+            cout<<"CLIENTE : "<<nombre<<endl;
+            cout<<"DIRECCION: "<<direccion<<endl;
+            cout<<"EMPRESA POR EL QUE SE REALIZARA EL ENVIO : "<<empresa<<endl;
+            cout<<"CELULAR: "<<celular<<endl;
+            cout<<"\n\n";
+        }
+        getline(mostrar,codigoCliente);
+    }
+    mostrar.close();
+}
